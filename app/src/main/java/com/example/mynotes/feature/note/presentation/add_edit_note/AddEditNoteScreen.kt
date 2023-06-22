@@ -29,6 +29,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -62,7 +63,8 @@ fun AddEditNoteScreen(
     val contentState = viewModel.noteContent.value
 
     val snackbarHostState = remember { SnackbarHostState() }
-    var canShowSnackbar = true
+    val canShowSnackbar = remember { mutableStateOf(true) }
+    val saveButtonPressed = remember { mutableStateOf(false) }
     val systemUiController = rememberSystemUiController()
 
     val color = remember {
@@ -78,8 +80,8 @@ fun AddEditNoteScreen(
                 systemUiController.setStatusBarColor(color)
             } else if (event == Lifecycle.Event.ON_STOP) {
                 systemUiController.setStatusBarColor(Color.Transparent)
-                canShowSnackbar = false
-                viewModel.onEvent(AddEditNoteEvenet.SaveNote)
+                canShowSnackbar.value = false
+                if (!saveButtonPressed.value) viewModel.onEvent(AddEditNoteEvenet.SaveNote)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -92,7 +94,7 @@ fun AddEditNoteScreen(
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
                 is AddEditNoteViewModel.UiEvent.ShowSnackbar -> {
-                    if (canShowSnackbar) snackbarHostState.showSnackbar(event.message)
+                    if (canShowSnackbar.value) snackbarHostState.showSnackbar(event.message)
                 }
 
                 is AddEditNoteViewModel.UiEvent.SaveNote -> {
@@ -106,6 +108,7 @@ fun AddEditNoteScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
+                    saveButtonPressed.value = true
                     viewModel.onEvent(AddEditNoteEvenet.SaveNote)
                 },
                 Modifier.clip(CircleShape)
