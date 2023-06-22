@@ -5,9 +5,11 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -57,6 +59,7 @@ fun NotesScreen(
     val state = viewModel.state.value
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val interactionSource = remember { MutableInteractionSource() }
 
     Scaffold(
         floatingActionButton = {
@@ -70,6 +73,12 @@ fun NotesScreen(
             }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
+        modifier = Modifier.clickable(
+            interactionSource = interactionSource,
+            indication = null
+        ) {
+            viewModel.onEvent(NotesEvent.ToggleOrderSection)
+        }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -100,7 +109,7 @@ fun NotesScreen(
             AnimatedVisibility(
                 visible = state.isOrderSectionVisible,
                 enter = fadeIn() + slideInVertically(),
-                exit = fadeOut() + slideOutVertically()
+                exit = fadeOut() + slideOutHorizontally()
             ) {
                 OrderSection(
                     modifier = Modifier

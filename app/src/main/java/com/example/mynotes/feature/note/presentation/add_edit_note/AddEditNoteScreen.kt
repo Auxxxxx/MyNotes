@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Save
@@ -61,6 +62,7 @@ fun AddEditNoteScreen(
     val contentState = viewModel.noteContent.value
 
     val snackbarHostState = remember { SnackbarHostState() }
+    var canShowSnackbar = true
     val systemUiController = rememberSystemUiController()
 
     val color = remember {
@@ -76,6 +78,8 @@ fun AddEditNoteScreen(
                 systemUiController.setStatusBarColor(color)
             } else if (event == Lifecycle.Event.ON_STOP) {
                 systemUiController.setStatusBarColor(Color.Transparent)
+                canShowSnackbar = false
+                viewModel.onEvent(AddEditNoteEvenet.SaveNote)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -88,7 +92,7 @@ fun AddEditNoteScreen(
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
                 is AddEditNoteViewModel.UiEvent.ShowSnackbar -> {
-                    snackbarHostState.showSnackbar(event.message)
+                    if (canShowSnackbar) snackbarHostState.showSnackbar(event.message)
                 }
 
                 is AddEditNoteViewModel.UiEvent.SaveNote -> {
@@ -116,7 +120,7 @@ fun AddEditNoteScreen(
                 .fillMaxSize()
                 .background(noteBackgroundAnimatable.value)
                 .padding(padding)
-                .padding(16.dp)
+                .padding(16.dp),
         ) {
             Row(
                 modifier = Modifier

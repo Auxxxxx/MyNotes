@@ -1,14 +1,18 @@
 package com.example.mynotes.feature.note.presentation.add_edit_note.component
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
@@ -29,6 +33,15 @@ fun TransparentHintTextField(
     singleLine: Boolean = false,
     onFocusChange: (FocusState) -> Unit
 ) {
+    val scrollState = rememberScrollState(0)
+
+    LaunchedEffect(scrollState.maxValue) {
+        scrollState.scrollTo(scrollState.maxValue)
+        println(scrollState.value)
+        // or
+        // scrollState.animateScrollTo(scrollState.maxValue)
+    }
+
     Box(
         modifier = modifier
     ) {
@@ -44,10 +57,9 @@ fun TransparentHintTextField(
                 textStyle = textStyle,
                 singleLine = singleLine,
                 modifier = Modifier
-                    .fillMaxWidth()
                     .then(
                         if (fillMaxHeight) Modifier.fillMaxSize()
-                        else Modifier
+                        else Modifier.fillMaxWidth()
                     )
                     .onFocusChanged {
                         onFocusChange(it)
